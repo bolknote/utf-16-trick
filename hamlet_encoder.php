@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 $js = <<<'JS'
 $$=($$=-~-~{}+!+[],_=({}+{})[++$$+!+[]],($=![]+[])[$$])+$[--$$]+_+((+{})+[])[$$/$$]+
 (_$=[]+!!$,__=(__=$[$$+~$],$[+!$]+($[$]+$)[$$+$$+~$]+__+__),
@@ -9,13 +11,27 @@ $$[_$=-~-~$<<-~$]+__[--_$]+$$[_$]+$$[--_$]+$$[+!$]+'(/'+_$_[_$/_$]+'.{'+
 _$*_$*_$+'}/'+(_[_]+_)[_$*_$+~~$$$]+',[]))',$$='%s',[][__][_]('$='+$)(),$
 JS;
 
+$encoder = static function (string $text):string {
+    return implode(array_map(static function (string $ch):string {
+        return "\xDB\x40\xDD$ch";
+    }, str_split($text)));
+};
+
 $text = trim(file_get_contents(__FILE__, false, null, __COMPILER_HALT_OFFSET__));
+$out = $encoder($text);
 
-$out = implode(array_map(static function($ch) {
-	return "\xDB\x40\xDD$ch";
-}, str_split($text)));
+$js_encoded = preg_replace_callback(
+    '/[_$]+/',
+    static function (array $r) use ($encoder):string {
+        static $table = [];
 
-printf($js, iconv('UTF-16', 'UTF-8', $out));
+        return $table[$r[0]] ?? $table[$r[0]] = '_'.iconv('UTF-16', 'UTF-8', $encoder($r[0]));
+    },
+    $js
+);
+
+
+printf($js_encoded, iconv('UTF-16', 'UTF-8', $out));
 
 __halt_compiler();
 To be, or not to be: that is the question:
