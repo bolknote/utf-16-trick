@@ -12,9 +12,9 @@ _$*_$*_$+'}/'+(_[_]+_)[_$*_$+~~$$$]+',[]))',$$='%s',[][__][_]('$='+$)(),$
 JS;
 
 $encoder = static function (string $text):string {
-    return implode(array_map(static function (string $ch):string {
-        return "\xDB\x40\xDD$ch";
-    }, str_split($text)));
+	return preg_replace_callback('[.]s', static function(array $r): string {
+		return "\xDB\x40\xDD{$r[0]}";
+	}, $text);
 };
 
 $text = trim(file_get_contents(__FILE__, false, null, __COMPILER_HALT_OFFSET__));
