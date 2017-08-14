@@ -18,22 +18,22 @@ local $/;
 my $text = <DATA>;
 
 sub encoder($) {
-	join '', map { "\xDB\x40\xDD$_" } split //, shift;
+    join '', map { "\xDB\x40\xDD$_" } split //, shift;
 }
 
 sub recode($) {
-	encode 'UTF-8', decode 'UTF-16BE', shift
+    encode 'UTF-8', decode 'UTF-16BE', shift
 }
 
 {
-	my %map = ();
+    my %map = ();
 
-	sub var_replace($) {
-		my ($name) = @_;
+    sub var_replace($) {
+        my ($name) = @_;
 
-		$map{$name} = '_'.recode(encoder($name)) unless $map{$name};
-		$map{$name};
-	}	
+        $map{$name} = '_'.recode(encoder($name)) unless $map{$name};
+        $map{$name};
+    }
 }
 
 my $out = encoder $text;
