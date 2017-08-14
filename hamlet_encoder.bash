@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ "${BASH_VERSINFO}" -lt 4 ]; then
-	echo 'Error: bash 4.0 and newer required.'
-	exit 1
+    echo 'Error: bash 4.0 and newer required.'
+    exit 1
 fi
 
 read -d '' TEXT <<'TEXT'
@@ -54,48 +54,48 @@ _$*_$*_$+'}/'+(_[_]+_)[_$*_$+~~$$$]+',[]))',$$='%s',[][__][_]('$='+$)(),$
 JS
 
 function recode {
-	iconv -f UTF-16BE -t UTF-8 <<< "$1"
+    iconv -f UTF-16BE -t UTF-8 <<< "$1"
 }
 
 function encoder {
-	while read -n 1 -d ''; do
-	    printf "\xDB\x40\xDD${REPLY}"
-	done <<< "$1"
+    while read -n 1 -d ''; do
+        printf "\xDB\x40\xDD${REPLY}"
+    done <<< "$1"
 }
 
 function vars.replace {
-	local re='[_$]+'
-	local text="$1"
-	local names=()
-	local maxlen=0
-	local name
+    local re='[_$]+'
+    local text="$1"
+    local names=()
+    local maxlen=0
+    local name
 
-	while [[ "$text" =~ $re ]]; do
-		name=${BASH_REMATCH[0]}
-		names+=("$name")
-		[[ $maxlen < ${#name} ]] && maxlen=${#name}
+    while [[ "$text" =~ $re ]]; do
+        name=${BASH_REMATCH[0]}
+        names+=("$name")
+        [[ $maxlen < ${#name} ]] && maxlen=${#name}
 
-		text="${text/$name/}"
-	done
+        text="${text/$name/}"
+    done
 
-	local unames=()
-	local name index
+    local unames=()
+    local name index
 
-	for name in ${names[@]}; do
-		index=${name//_/1}
-		index=$[ ($maxlen-${#name})*(10**$maxlen) + ${index//$/2} ]
-		unames[$index]="$name"
-	done
+    for name in ${names[@]}; do
+        index=${name//_/1}
+        index=$[ ($maxlen-${#name})*(10**$maxlen) + ${index//$/2} ]
+        unames[$index]="$name"
+    done
 
-	local name newname
+    local name newname
 
-	text="$1"
-	for name in "${unames[@]}"; do
-		newname=$(recode "$(encoder "$name")")
-		text="${text//$name/V$newname}"
-	done
+    text="$1"
+    for name in "${unames[@]}"; do
+        newname=$(recode "$(encoder "$name")")
+        text="${text//$name/V$newname}"
+    done
 
-	echo "${text//V/_}"
+    echo "${text//V/_}"
 }
 
 out=$(recode "$(encoder "$TEXT")")
